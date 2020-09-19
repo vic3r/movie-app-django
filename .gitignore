@@ -1,0 +1,7 @@
+# virtual environment
+venv/*
+*.env
+*.env.*
+
+# cache dirs
+pycache/*
