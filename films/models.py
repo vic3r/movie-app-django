@@ -8,7 +8,8 @@ class Actor(models.Model):
     country = models.CharField(max_length=100)
     img_url = models.URLField()
     
-    def get_age(self) -> int:
+    @property
+    def age(self) -> int:
         today = date.today()
         age = (today.year - self.birthdate.year -
             ((today.month, today.day) < (self.birthdate.month, self.birthdate.day)))
@@ -38,7 +39,8 @@ class Director(models.Model):
     country = models.CharField(max_length=40)
     img_url = models.URLField()
 
-    def get_age(self) -> int:
+    @property
+    def age(self) -> int:
         today = date.today()
         age = (today.year - self.birthdate.year -
             ((today.month, today.day) < (self.birthdate.month, self.birthdate.day)))
