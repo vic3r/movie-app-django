@@ -1,42 +1,89 @@
 from django.test import TestCase
 from datetime import date
-from .models import Actor, Film, Director
+from .models import Person, Movie
 
-class ActorTestCase(TestCase):
+class PersonTestCase(TestCase):
     def setUp(self):
-        Actor.objects.create(name='Saoirse', last_name='Ronan', birthdate=date(1994 , 4 , 12), country='USA')
-        Actor.objects.create(name='Rami', last_name='Malek', birthdate=date(1981 , 5 , 12), country='USA')
+        Person.objects.create(
+            imdb_name_id='t001',
+            name='Saoirse Ronan',
+            birth_name='',
+            height=178,
+            bio='',
+            birth_details='',
+            date_of_birth='1994, 4, 12',
+            place_of_birth='Queens, New York, NY, USA',
+            death_details='',
+            date_of_death='',
+            place_of_death='',
+            reason_of_death='',
+            spouses_string='',
+            spouses=0,
+            divorces=0,
+            spouses_with_children=0,
+            children=0,
+        )    
+        Person.objects.create(
+            imdb_name_id='t002',
+            name='Rami Malek',
+            birth_name='',
+            height=175,
+            bio='',
+            birth_details='',
+            date_of_birth='1981, 9, 11',
+            death_details='',
+            place_of_birth='Queens, New York, NY, USA',
+            date_of_death='',
+            place_of_death='',
+            reason_of_death='',
+            spouses_string='',
+            spouses=1,
+            divorces=0,
+            spouses_with_children=0,
+            children=2,
+        )
     
     def test_get_all_actors(self):
-        total_actors = Actor.objects.all()
+        total_actors = Person.objects.all()
         self.assertEqual(len(total_actors), 2)
 
-    def test_get_actor_age(self):
-        rami = Actor.objects.get(name='Rami')
-        saoirse = Actor.objects.get(name='Saoirse')
-        self.assertEqual(rami.age, 39)
-        self.assertEqual(saoirse.age, 26)
+    def test_get_actor_spouses(self):
+        rami = Person.objects.get(name='Rami Malek')
+        saoirse = Person.objects.get(name='Saoirse Ronan')
+        self.assertEqual(rami.spouses, 1)
+        self.assertEqual(saoirse.spouses, 0)
 
-class DirectorTestCase(TestCase):
+class MovieTestCase(TestCase):
     def setUp(self):
-        Director.objects.create(name='Greta', last_name='Gerwig', birthdate=date(1983 , 8 , 4), country='USA')
-
-    def test_get_directors(self):
-        total_directors = Director.objects.all()
-        self.assertEqual(len(total_directors), 1)
-    
-    def test_get_actor_age(self):
-        greta = Director.objects.get(name='Greta')
-        self.assertEqual(greta.age, 37)
-
-
-class FilmTestCase(TestCase):
-    def setUp(self):
-        saoirse = Actor.objects.create(name='Saoirse', last_name='Ronan', birthdate=date(1994 , 4 , 12), country='USA')
-        film_instance = Film.objects.create(title='Lady Bird', duration='94 minutes', year=2017, genre='Drama', price=50.00)
-        film_instance.actors.add(saoirse)
+        Movie.objects.create(
+            imdb_title_id="t001",
+            title='Lady Bird',
+            original_title="",
+            year='2017-08-05',
+            date_published="",
+            genre="Drama",
+            duration=94,
+            country="",
+            language="",
+            director="",
+            writer="",
+            production_company="",
+            actors="",
+            description="",
+            avg_vote=8.1,
+            votes=230000,
+            budget="",
+            usa_gross_income="",
+            worldwide_gross_income="",
+            metascore=8.8,
+            reviews_from_users=7.6,
+            reviews_from_critics=8.2,
+        )
     
     def test_get_movies(self):
-        total_films = Film.objects.all()
-        self.assertEqual(len(total_films), 1)
+        total_movies = Movie.objects.all()
+        self.assertEqual(len(total_movies), 1)
     
+    def test_get_movie_votes(self):
+        lady_bird = Movie.objects.get(title='Lady Bird')
+        self.assertEqual(lady_bird.votes, 230000)
