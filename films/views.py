@@ -24,9 +24,9 @@ class MovieView(mixins.RetrieveModelMixin,
         title = self.request.query_params.get('title')
         genre = self.request.query_params.get('genre')
         if title:
-            queryset = queryset.filter(title=title)
+            queryset = queryset.filter(title__contains=title)
         elif genre:
-            queryset = queryset.filter(genre=genre)
+            queryset = queryset.filter(genre__contains=genre)
         return queryset
 
 class PersonView(mixins.RetrieveModelMixin,
@@ -42,5 +42,5 @@ class PersonView(mixins.RetrieveModelMixin,
         queryset = Person.objects.all()
         name = self.request.query_params.get('name')
         if name:
-            queryset = queryset.filter(name=name)
+            queryset = queryset.filter(name__contains=name)
         return queryset
