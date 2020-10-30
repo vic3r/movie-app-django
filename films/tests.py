@@ -1,6 +1,6 @@
 from django.test import TestCase
 from datetime import date
-from .models import Person, Movie
+from films.models import Person, Movie
 
 class PersonTestCase(TestCase):
     def setUp(self):
