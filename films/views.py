@@ -5,12 +5,19 @@ from rest_framework.response import Response
 from rest_framework import viewsets, mixins
 from .models import Person, Movie
 from .serializers import PersonSerializer, MovieSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+
+from authentication import permissions
 
 class MovieView(mixins.RetrieveModelMixin,
                 mixins.ListModelMixin,
                 viewsets.GenericViewSet):
+    
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated)
 
     def get_queryset(self):
         queryset = Movie.objects.all()
@@ -25,8 +32,11 @@ class MovieView(mixins.RetrieveModelMixin,
 class PersonView(mixins.RetrieveModelMixin,
                 mixins.ListModelMixin,
                 viewsets.GenericViewSet):
+    
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated)
 
     def get_queryset(self):
         queryset = Person.objects.all()
