@@ -1,7 +1,4 @@
 import requests
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseServerError
-from rest_framework.response import Response
 from rest_framework import viewsets, mixins
 from .models import Person, Movie
 from .serializers import PersonSerializer, MovieSerializer
@@ -23,10 +20,19 @@ class MovieView(mixins.RetrieveModelMixin,
         queryset = Movie.objects.all()
         title = self.request.query_params.get('title')
         genre = self.request.query_params.get('genre')
+        actor = self.request.query_params.get('actor')
+        director = self.request.query_params.get('director')
+        avg_vote = self.request.query_params.get('avg_vote')
         if title:
             queryset = queryset.filter(title__contains=title)
-        elif genre:
+        if genre:
             queryset = queryset.filter(genre__contains=genre)
+        if actor:
+            queryset = queryset.filter(actors__contains=actor)
+        if director:
+            queryset = queryset.filter(director__contains=director)
+        if avg_vote:
+            queryset = queryset.filter(avg_vote__gte=avg_vote)
         return queryset
 
 class PersonView(mixins.RetrieveModelMixin,

@@ -43,4 +43,3 @@ note: every endpoint requires a header `Authorization` : `Token `token`
 - Run in cli `python manage.py makemigrations`
 - Run in cli `python manage.py migrate`
 - Run in cli `python manage.py runserver`
-
