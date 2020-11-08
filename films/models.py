@@ -51,6 +51,7 @@ class Movie(models.Model):
     metascore = models.FloatField(default=0.0, null=True)
     reviews_from_users = models.FloatField(default=0.0, null=True)
     reviews_from_critics = models.FloatField(default=0.0, null=True)
+    image = models.TextField(default='', null=True)
 
     def __str__(self):
         return self.title

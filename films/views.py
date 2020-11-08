@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
 from authentication import permissions
+from contactsapi import settings
+import requests
 
 class MovieView(mixins.RetrieveModelMixin,
                 mixins.ListModelMixin,
@@ -15,6 +17,15 @@ class MovieView(mixins.RetrieveModelMixin,
     serializer_class = MovieSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated)
+
+    def get_image(self,  obj):
+        title_id = obj.imdb_title_id
+        image_gateway_uri = f'http://{settings.IMAGE_GATEWAY_HOST}:{settings.IMAGE_GAYEWAY_PORT}/images/movies/{title_id}'
+        response = requests.get(image_gateway_uri)
+        image = response.json()
+        obj.image = image['value']
+
+        return obj
 
     def get_queryset(self):
         queryset = Movie.objects.all()
@@ -33,7 +44,8 @@ class MovieView(mixins.RetrieveModelMixin,
             queryset = queryset.filter(director__contains=director)
         if avg_vote:
             queryset = queryset.filter(avg_vote__gte=avg_vote)
-        return queryset
+        result = [self.get_image(q) for q in queryset.iterator()]
+        return result
 
 class PersonView(mixins.RetrieveModelMixin,
                 mixins.ListModelMixin,

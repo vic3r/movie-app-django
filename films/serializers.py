@@ -51,4 +51,5 @@ class MovieSerializer(serializers.ModelSerializer):
             'metascore',
             'reviews_from_users',
             'reviews_from_critics',
+            'image'
         )

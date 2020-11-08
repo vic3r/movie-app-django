@@ -15,7 +15,7 @@ class UserProfileViewSet(mixins.CreateModelMixin,
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'email', )
+    search_fields = ('username', 'email', )
 
 
 class UserLoginApiView(ObtainAuthToken):
