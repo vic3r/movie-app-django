@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date 
+from authentication.models import UserProfile
 
 class Person(models.Model):
     id = models.AutoField(primary_key=True)
@@ -52,6 +53,7 @@ class Movie(models.Model):
     reviews_from_users = models.FloatField(default=0.0, null=True)
     reviews_from_critics = models.FloatField(default=0.0, null=True)
     image = models.TextField(default='', null=True)
+    users = models.ManyToManyField(UserProfile)
 
     def __str__(self):
         return self.title

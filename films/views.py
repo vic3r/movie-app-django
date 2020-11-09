@@ -4,8 +4,11 @@ from .models import Person, Movie
 from .serializers import PersonSerializer, MovieSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.response import Response
+from http import HTTPStatus
 
 from authentication import permissions
+from authentication.models import UserProfile
 from contactsapi import settings
 import requests
 
@@ -46,6 +49,41 @@ class MovieView(mixins.RetrieveModelMixin,
             queryset = queryset.filter(avg_vote__gte=avg_vote)
         result = [self.get_image(q) for q in queryset.iterator()]
         return result
+
+class MovieUserView(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+            
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated)
+
+    def get_queryset(self):
+        queryset = Movie.objects.all()
+        email = self.request.query_params.get('email')
+        if email:
+            user = UserProfile.objects.get(email=email)
+            queryset = queryset.filter(users=user)
+            return queryset
+        else:
+            return Response({'msg': f'email not found'}, HTTPStatus.BAD_REQUEST)
+    
+    def create(self, request, *args, **kwargs):
+        queryset = Movie.objects.all()
+        if 'email' not in request.data:
+            return Response({'msg': f'email not found'}, HTTPStatus.BAD_REQUEST)
+        if 'movie_id' not in request.data:
+            return Response({'msg': f'movie_id not found'}, HTTPStatus.BAD_REQUEST)
+        email = request.data['email']
+        movie_id = request.data['movie_id']
+        movie = queryset.get(id=movie_id)
+        user = UserProfile.objects.get(email=email)
+        if not movie or not user:
+            return Response({'msg': f'user/movie {movie_id} not found'}, HTTPStatus.NOT_FOUND)
+        movie.users.add(user)
+        movie.save()
+        return Response({'msg': f'movie {movie_id} added'}, HTTPStatus.CREATED)
 
 class PersonView(mixins.RetrieveModelMixin,
                 mixins.ListModelMixin,
