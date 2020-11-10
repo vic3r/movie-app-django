@@ -12,6 +12,16 @@ from authentication.models import UserProfile
 from contactsapi import settings
 import requests
 
+
+def get_image(obj):
+    title_id = obj.imdb_title_id
+    image_gateway_uri = f'http://{settings.IMAGE_GATEWAY_HOST}:{settings.IMAGE_GAYEWAY_PORT}/images/movies/{title_id}'
+    response = requests.get(image_gateway_uri)
+    image = response.json()
+    obj.image = image['value']
+
+    return obj
+
 class MovieView(mixins.RetrieveModelMixin,
                 mixins.ListModelMixin,
                 viewsets.GenericViewSet):
@@ -20,15 +30,6 @@ class MovieView(mixins.RetrieveModelMixin,
     serializer_class = MovieSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated)
-
-    def get_image(self,  obj):
-        title_id = obj.imdb_title_id
-        image_gateway_uri = f'http://{settings.IMAGE_GATEWAY_HOST}:{settings.IMAGE_GAYEWAY_PORT}/images/movies/{title_id}'
-        response = requests.get(image_gateway_uri)
-        image = response.json()
-        obj.image = image['value']
-
-        return obj
 
     def get_queryset(self):
         queryset = Movie.objects.all()
@@ -47,7 +48,7 @@ class MovieView(mixins.RetrieveModelMixin,
             queryset = queryset.filter(director__contains=director)
         if avg_vote:
             queryset = queryset.filter(avg_vote__gte=avg_vote)
-        result = [self.get_image(q) for q in queryset.iterator()]
+        result = [get_image(q) for q in queryset.iterator()]
         return result
 
 class MovieUserView(mixins.CreateModelMixin,
@@ -65,7 +66,8 @@ class MovieUserView(mixins.CreateModelMixin,
         if email:
             user = UserProfile.objects.get(email=email)
             queryset = queryset.filter(users=user)
-            return queryset
+            result = [get_image(q) for q in queryset.iterator()]
+            return result
         else:
             return Response({'msg': f'email not found'}, HTTPStatus.BAD_REQUEST)
     
