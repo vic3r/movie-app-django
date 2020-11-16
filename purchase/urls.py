@@ -1,13 +1,11 @@
 from django.urls import path, include
-
 from rest_framework.routers import DefaultRouter
-
-from authentication import views
+from purchase import views
 
 router = DefaultRouter()
-router.register('profile', views.UserProfileViewSet)
+router.register('card', views.CardView)
+router.register('purchase', views.PurchaseView)
 
 urlpatterns = [
-    path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),
 ]

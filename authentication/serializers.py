@@ -1,23 +1,32 @@
+from datetime import datetime
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from authentication import models
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        max_length=65, min_length=8, write_only=True)
-    email = serializers.EmailField(max_length=255, min_length=4),
-    first_name = serializers.CharField(max_length=255, min_length=2),
-    last_name = serializers.CharField(max_length=255, min_length=2),
-
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
-
-    def validate(self, attrs):
-        email=attrs.get('email', '')
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                {'email': ('Email is already in use')})
-        return super().validate(attrs)
+        model = models.UserProfile
+        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password')
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+                'style': {'input_type': 'password'}
+            }
+        }
     
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        user = models.UserProfile.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            password=validated_data['password']
+        )
+
+        return user
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        return super().update(instance, validated_data)

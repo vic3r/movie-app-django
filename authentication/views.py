@@ -1,18 +1,22 @@
-from django.shortcuts import render
-from rest_framework.generics import GenericAPIView
-from .serializers import UserSerializer
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import filters, viewsets, mixins
+from rest_framework.settings import api_settings
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authentication import TokenAuthentication
 
-# Create your views here.
-class RegisterView(GenericAPIView):
-    serializer_class = UserSerializer
+from authentication import (serializers, models, permissions)
 
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
+class UserProfileViewSet(mixins.CreateModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.DestroyModelMixin,
+                        mixins.RetrieveModelMixin,
+                        viewsets.GenericViewSet):
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username', 'email', )
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserLoginApiView(ObtainAuthToken):
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
